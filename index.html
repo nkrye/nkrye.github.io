@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nkrye | Welcome</title>
+
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: Arial, Helvetica, sans-serif;
+            background: linear-gradient(90deg, #d0d0d0, #d1cac7);
+            height: 100vh;
+        }
+
+        .card {
+            background-color: #fff8;
+            border-radius: 15px;
+            overflow: hidden;
+            width: 320px;
+            backdrop-filter: blur(10px);
+        }
+
+        .banner-container {
+            height: 120px;
+            background: #ccc;
+        }
+
+        .banner-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .avatar-container {
+            margin-top: -40px;
+            padding-left: 16px;
+        }
+
+        .avatar-container img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 6px solid #111827;
+            background-color: #111827;
+        }
+
+        .info {
+            padding: 20px;
+        }
+
+        .info h1 {
+            margin: 8px 0 4px 0;
+            font-size: 18px;
+        }
+
+        .info p {
+            margin: 0;
+            color: #9ca3af;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+    <main>
+        <div class="card">
+            <div class="banner-container">
+                <img 
+                    id="banner"
+                    src="https://cdn.discordapp.com/banners/1393549823491313664/b1e06db8617ee6be1e292b8dfd20594e.png?size=1024"
+                >
+            </div>
+
+            <div class="avatar-container">
+                <img id="avatar">
+            </div>
+
+            <div class="info">
+                <h1 id="username"></h1>
+                <p id="activity"></p>
+                <p id="spotify"></p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const USER_ID = '1393549823491313664';
+        const bannerEl = document.getElementById('banner');
+
+        bannerEl.onerror = () => {
+            bannerEl.src = "fallback-banner.jpg"; 
+        };
+
+        async function loadDiscord() {
+            const res = await fetch(`https://api.lanyard.rest/v1/users/${USER_ID}`);
+            const json = await res.json();
+
+            const user = json.data.discord_user;
+            const activities = json.data.activities?.[0];
+            const spotify = json.data.spotify;
+
+            console.log(user);
+
+            if (user.avatar) {
+                const avatarAnimated = user.avatar.startsWith('a_');
+                const avatarUrl = 
+                    `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.${avatarAnimated ? 'gif' : 'png'}?size=256`;
+
+                document.getElementById('avatar').src = avatarUrl;
+            }
+
+            document.getElementById('username').textContent = 
+                user.global_name || user.username;
+
+            document.getElementById('activity').textContent = 
+                `Activity: ${activities ? activities.name : 'Nothing'}`;
+
+            document.getElementById('spotify').textContent = 
+                `Listen: ${spotify ? spotify.song : 'Nothing'}`;
+        }
+
+        loadDiscord();
+        setInterval(loadDiscord, 10000);
+    </script>
+</body>
+</html>
